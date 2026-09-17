@@ -1,0 +1,14 @@
+README.md
+  h_b156936c57c455 4-6,12-13,18,31,35,38,43,46,49,52-53,56-58,61-62,64-67,69,71,73-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "65ceb27497d66eafe0012c54fef94d13b347e475",
+  "prompts": {},
+  "humans": {
+    "h_b156936c57c455": {
+      "author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
