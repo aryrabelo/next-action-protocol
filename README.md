@@ -76,15 +76,50 @@ stay with the four tags.
 
 ## Install
 
-**OMP** — copy or link `omp/next-action.md` into the `agent/rules/` directory of
-your OMP configuration. It already carries `alwaysApply: true`, so it loads into
-every session.
+Pick the surface your harness loads on EVERY response. A protocol that shapes
+every answer is worthless on a surface that only loads when something matches a
+description.
 
-**Other harnesses (Claude Code, Cursor, AGENTS.md)** — paste the contents of
-[`PROTOCOL.md`](PROTOCOL.md) into whichever instruction file is always loaded:
-`CLAUDE.md`, a file under `.cursor/rules/`, `AGENTS.md`, or the system prompt
+### Claude Code
+
+Always-loaded. `CLAUDE.md` is read into context on every response — user-level
+(`~/.claude/CLAUDE.md`, applies to every project) or project-level (`./CLAUDE.md`,
+committed with the repo).
+
+```sh
+mkdir -p ~/.claude && cat claude/CLAUDE.md >> ~/.claude/CLAUDE.md   # all projects
+cat claude/CLAUDE.md >> ./CLAUDE.md                                 # this repo only
+```
+
+Do NOT install this as a Claude Code skill. Skills load on demand, selected by
+their `description` — a skill would apply to some responses and not others, which
+is exactly the failure mode this protocol exists to prevent.
+
+### OMP
+
+Always-loaded. A rule with `alwaysApply: true` enters every session.
+
+```sh
+cp omp/next-action.md <your-omp-config>/agent/rules/next-action.md
+```
+
+The file already carries the `alwaysApply: true` frontmatter, so there is nothing
+else to set.
+
+### Any harness with an always-loaded instructions file
+
+Append [`PROTOCOL.md`](PROTOCOL.md) to whichever file your harness always loads —
+`AGENTS.md`, `.cursorrules`, a file under `.cursor/rules/`, or the system prompt
 itself. `PROTOCOL.md` has no frontmatter and no harness-specific syntax, so it
-drops in as-is.
+drops in as-is:
+
+```sh
+cat PROTOCOL.md >> ./AGENTS.md
+```
+
+If the only surface available is on-demand (a skill, a slash command, a
+description-matched rule), the protocol will not hold. Use a fixed-context file
+instead.
 
 ## License
 
