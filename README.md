@@ -1,30 +1,21 @@
 # NEXT ACTION protocol
 
 A coding agent that ends with "let me know how you'd like to proceed" has handed
-the work back without saying what the work is. This protocol fixes that: every
-recommendation-bearing response ends with exactly one unambiguous action, and when
-the decision belongs to the human, the options are spelled out instead of implied.
+the work back without saying what the work is. This protocol removes that: every
+recommendation-bearing response ends in exactly one unambiguous action, and the
+options are spelled out whenever the decision is the human's.
 
 Four tags, exactly one per response:
 
 | Tag | Meaning | Requirement |
 | --- | --- | --- |
-| `[DONE]` | The agent already executed it. | Auto-apply only when all three hold: reversible, scoped to the task, confidence >= 0.8. |
-| `[DECIDE]` | A choice only the human can make. | Lettered options (A/B/C), the recommended one first as A. Each option states what happened, what the choice does, and what the human must do. |
+| `[DONE]` | The agent already executed it. | Only when all three hold: reversible, scoped to the task, confidence >= 0.8. |
+| `[DECIDE]` | A choice only the human can make. | Lettered options (A/B/C), the recommended one first as A. Each states what happened, what the choice does, and what the human must do. |
 | `[HUMAN]` | A step only the human can run. | Give the exact command or action. |
 | `[WAIT]` | Blocked on something external that resolves on its own. | Name what you are waiting on, how you will know it finished, and the fallback if it never does. Nothing for the human to do. |
 
 Destructive, shared-state, low-confidence, or out-of-scope actions are never
-`[DONE]`. And the work is not finished until a response ends in `[DONE]` — every
-other tag means the loop is still open.
-
-Two rules keep `[DECIDE]` honest. The recommendation goes first, as A, so the
-reader meets the default before the alternatives. And if you cannot justify it in
-one clause — "recommended because X" — then you do not have a recommendation: put
-`(no recommendation — your call)` on the tag line and say why the choice is
-genuinely human. Marking A by reflex defeats the point of asking. Options must also
-be mutually exclusive, and when doing nothing is a legitimate path it gets its own
-letter rather than being left implicit.
+`[DONE]`. The work is not finished until a response ends in `[DONE]`.
 
 ## Example
 
@@ -37,115 +28,52 @@ so the production run is not reversible.
 A) Ship it behind the dual-write flag first (recommended)
 - Recommended because it makes a bad deploy a flag flip instead of a restore.
 - Command: ./deploy --flag dual_write_orders
-- Keeps the old column readable for one release. You deploy; I watch the first
-  batch and report row counts.
+- You deploy; I watch the first batch and report row counts.
 
 B) Run the destructive migration now
 - Command: make migrate-prod
-- One less release to wait for, but recovery means a point-in-time restore. You
-  run it, since it needs the production credential.
+- Recovery means a point-in-time restore. You run it; it needs the credential.
 
 C) Do nothing this week
-- Nothing to run. The current code path keeps working; I go finish the backfill
-  audit and re-open this decision with real numbers.
+- Nothing to run. I finish the backfill audit and re-open this with real numbers.
 ```
+
+## Install
+
+| Path | When it loads | Guarantee |
+| --- | --- | --- |
+| `SKILL.md` via `npx skills add` | ON DEMAND — the agent decides from the description | Partial. Maximum reach, no guarantee it is loaded on the response that matters. |
+| Always-loaded file | EVERY response | Full. This is the reliable mode, and the recommended one. |
+
+```sh
+npx skills add aryrabelo/next-action-protocol --agent claude-code -g
+```
+
+Good for trying it out, and for agents with no always-loaded file; if you like it,
+move to the fixed one. `next-action.md` is the portable text, no frontmatter:
+
+```sh
+cat next-action.md >> ~/.claude/CLAUDE.md   # Claude Code, every project
+cat next-action.md >> ./CLAUDE.md           # Claude Code, this project only
+cat next-action.md >> ./AGENTS.md           # or .cursorrules, or the system prompt
+```
+
+For OMP, copy `omp/next-action.md` into the `agent/rules/` directory of your
+config: same text plus `alwaysApply: true`, so there is nothing else to set.
+
+Warning if you manage `~/.claude` or `~/.omp` declaratively (nix, home-manager):
+`npx skills add` creates a real directory in the agent's skills path and collides
+with the generation that owns it, so activation fails with "destination exists and
+is not our symlink". Use the always-loaded file instead.
 
 ## Migrating from the 3-tag version
 
-`[WAIT]` changed meaning, not just spelling. Earlier versions used it for "your
-decision", which read as "the agent is waiting on a background job" to everyone who
-met it cold. The name now says what it looks like it says:
+`[WAIT]` changed meaning, not just spelling.
 
 | Then | Now |
 | --- | --- |
 | `[WAIT]` meaning "your decision" | Rename to `[DECIDE]` |
-| — | `[WAIT]` now means an external blocker that resolves on its own; nothing for the human to do |
-
-So if you already run the 3-tag version, rename every decision-shaped `[WAIT]` to
-`[DECIDE]`, and keep `[WAIT]` only for CI runs, background jobs, other agents, and
-timers.
-
-## Referencing a PR or issue (optional)
-
-If you work across more than one repository, add the second section of
-[`PROTOCOL.md`](PROTOCOL.md) too. It bans the bare `#64` — numbers are
-per-repository, so a bare one identifies nothing once several repos or checkouts
-are in play — and requires every reference to carry `owner/repo`, a full link, and
-a command with `--repo owner/repo` spelled out. If you only ever work in one repo,
-stay with the four tags.
-
-## Install
-
-This repo ships two artifacts, and the difference between them is the most
-important thing on this page.
-
-| Install path | When it loads | Guarantee |
-| --- | --- | --- |
-| `SKILL.md` via `npx skills add` | ON DEMAND — the agent decides from the description | Partial. Maximum reach, no guarantee it is loaded on the response that matters. |
-| Always-loaded file (`CLAUDE.md` user or project, a rule with `alwaysApply`, `AGENTS.md`, `.cursorrules`) | EVERY response | Full. This is the reliable mode, and the recommended one. |
-
-The skill path is good for trying the protocol out, and for agents that have no
-always-loaded instructions file at all; if you like it, move to the fixed file.
-
-### Any agent, via npx skills
-
-On demand. [`npx skills`](https://github.com/vercel-labs/skills) (MIT, 79 agents)
-discovers `SKILL.md` anywhere in a repo and installs it into the agent's skills
-directory — `./<agent>/skills/` for a project, `~/<agent>/skills/` with `-g`, by
-symlink unless you pass `--copy`.
-
-```sh
-npx skills add aryrabelo/next-action-protocol --agent claude-code      # project
-npx skills add aryrabelo/next-action-protocol --agent claude-code -g   # global
-```
-
-Warning if you manage your agent config declaratively (nix, home-manager,
-chezmoi): `npx skills add` creates a real directory inside the agent's skills
-path, which collides with the generation that owns it and makes activation fail
-with "destination exists and is not our symlink" — use the always-loaded file
-instead.
-
-### Claude Code
-
-Always-loaded. `CLAUDE.md` is read into context on every response — user-level
-(`~/.claude/CLAUDE.md`, applies to every project) or project-level (`./CLAUDE.md`,
-committed with the repo).
-
-```sh
-mkdir -p ~/.claude && cat claude/CLAUDE.md >> ~/.claude/CLAUDE.md   # all projects
-cat claude/CLAUDE.md >> ./CLAUDE.md                                 # this repo only
-```
-
-This is the path to use if you want the protocol to actually hold on Claude Code.
-The skill install above also works here, but it is selected on demand by its
-`description`, so it applies to some responses and not others — which is the
-failure mode this protocol exists to prevent.
-
-### OMP
-
-Always-loaded. A rule with `alwaysApply: true` enters every session.
-
-```sh
-cp omp/next-action.md <your-omp-config>/agent/rules/next-action.md
-```
-
-The file already carries the `alwaysApply: true` frontmatter, so there is nothing
-else to set.
-
-### Any harness with an always-loaded instructions file
-
-Append [`PROTOCOL.md`](PROTOCOL.md) to whichever file your harness always loads —
-`AGENTS.md`, `.cursorrules`, a file under `.cursor/rules/`, or the system prompt
-itself. `PROTOCOL.md` has no frontmatter and no harness-specific syntax, so it
-drops in as-is:
-
-```sh
-cat PROTOCOL.md >> ./AGENTS.md
-```
-
-If the only surface available is on-demand (a skill, a slash command, a
-description-matched rule), the protocol will not hold. Use a fixed-context file
-instead.
+| — | `[WAIT]` is now an external blocker that resolves on its own; nothing for the human to do |
 
 ## License
 
