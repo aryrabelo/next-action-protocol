@@ -1,0 +1,18 @@
+README.md
+  h_b156936c57c455 23-25
+next-action.md
+  h_b156936c57c455 3-4,16-21
+omp/next-action.md
+  h_b156936c57c455 7-8,20-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "443474b175f585c7b33bc20bae1c9332c5b889d6",
+  "prompts": {},
+  "humans": {
+    "h_b156936c57c455": {
+      "author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
