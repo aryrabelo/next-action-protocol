@@ -76,9 +76,34 @@ stay with the four tags.
 
 ## Install
 
-Pick the surface your harness loads on EVERY response. A protocol that shapes
-every answer is worthless on a surface that only loads when something matches a
-description.
+This repo ships two artifacts, and the difference between them is the most
+important thing on this page.
+
+| Install path | When it loads | Guarantee |
+| --- | --- | --- |
+| `SKILL.md` via `npx skills add` | ON DEMAND — the agent decides from the description | Partial. Maximum reach, no guarantee it is loaded on the response that matters. |
+| Always-loaded file (`CLAUDE.md` user or project, a rule with `alwaysApply`, `AGENTS.md`, `.cursorrules`) | EVERY response | Full. This is the reliable mode, and the recommended one. |
+
+The skill path is good for trying the protocol out, and for agents that have no
+always-loaded instructions file at all; if you like it, move to the fixed file.
+
+### Any agent, via npx skills
+
+On demand. [`npx skills`](https://github.com/vercel-labs/skills) (MIT, 79 agents)
+discovers `SKILL.md` anywhere in a repo and installs it into the agent's skills
+directory — `./<agent>/skills/` for a project, `~/<agent>/skills/` with `-g`, by
+symlink unless you pass `--copy`.
+
+```sh
+npx skills add aryrabelo/next-action-protocol --agent claude-code      # project
+npx skills add aryrabelo/next-action-protocol --agent claude-code -g   # global
+```
+
+Warning if you manage your agent config declaratively (nix, home-manager,
+chezmoi): `npx skills add` creates a real directory inside the agent's skills
+path, which collides with the generation that owns it and makes activation fail
+with "destination exists and is not our symlink" — use the always-loaded file
+instead.
 
 ### Claude Code
 
@@ -91,9 +116,10 @@ mkdir -p ~/.claude && cat claude/CLAUDE.md >> ~/.claude/CLAUDE.md   # all projec
 cat claude/CLAUDE.md >> ./CLAUDE.md                                 # this repo only
 ```
 
-Do NOT install this as a Claude Code skill. Skills load on demand, selected by
-their `description` — a skill would apply to some responses and not others, which
-is exactly the failure mode this protocol exists to prevent.
+This is the path to use if you want the protocol to actually hold on Claude Code.
+The skill install above also works here, but it is selected on demand by its
+`description`, so it applies to some responses and not others — which is the
+failure mode this protocol exists to prevent.
 
 ### OMP
 
