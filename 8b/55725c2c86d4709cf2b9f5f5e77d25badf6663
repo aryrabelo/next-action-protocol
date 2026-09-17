@@ -1,0 +1,16 @@
+README.md
+  h_b156936c57c455 79-106
+skills/next-action-protocol/SKILL.md
+  h_b156936c57c455 1-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8b55725c2c86d4709cf2b9f5f5e77d25badf6663",
+  "prompts": {},
+  "humans": {
+    "h_b156936c57c455": {
+      "author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
