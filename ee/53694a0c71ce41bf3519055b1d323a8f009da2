@@ -1,0 +1,22 @@
+.gitignore
+  h_b156936c57c455 1
+LICENSE
+  h_b156936c57c455 1-21
+PROTOCOL.md
+  h_b156936c57c455 1-38
+README.md
+  h_b156936c57c455 1-74
+omp/next-action.md
+  h_b156936c57c455 1-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ee53694a0c71ce41bf3519055b1d323a8f009da2",
+  "prompts": {},
+  "humans": {
+    "h_b156936c57c455": {
+      "author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
