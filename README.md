@@ -17,6 +17,38 @@ Four tags, exactly one per response:
 Destructive, shared-state, low-confidence, or out-of-scope actions are never
 `[DONE]`. The work is not finished until a response ends in `[DONE]`.
 
+## Copy and paste this
+
+No install step. Paste this block at the end of the file your agent always loads
+— `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, Cursor, Gemini CLI, Amp and
+most others, or the system prompt if that is all you get:
+
+````markdown
+# NEXT ACTION protocol
+
+End every recommendation-bearing response with a `## NEXT ACTION` heading, then a
+blank line, then exactly one tag on its own line:
+
+- `[DONE]` — you already executed it. Auto-apply ONLY when all three hold: reversible, scoped to the task, confidence >= 0.8.
+- `[DECIDE]` — a choice only the human can make. Lettered options (A/B/C); the recommended one is listed FIRST, as A. Each option states what happened, what the choice does, and what the human must do. If you cannot justify the recommendation in one clause, write `(no recommendation — your call)` on the tag line and give the one-line reason the choice is genuinely human. Options are mutually exclusive, and when "do nothing" is a legitimate path it is a lettered option, never implicit.
+- `[HUMAN]` — a step only the human can run; give the exact command or action.
+- `[WAIT]` — you are blocked on something external that resolves on its own (background job, CI run, another agent, a timer). Name what you are waiting on, how you will know it finished, and the fallback if it never does. Nothing for the human to do here. A decision is NEVER `[WAIT]` — that is `[DECIDE]`.
+
+Destructive, shared-state, low-confidence, or out-of-scope actions are never `[DONE]`.
+
+Exactly one tag per response. The work is not finished until a response ends in
+`[DONE]` — every other tag means the loop is still open.
+
+```
+## NEXT ACTION
+
+[DECIDE] — <one line framing the choice>
+```
+````
+
+That is the whole protocol. Nothing else to configure, and it works on any agent
+that reads an instruction file.
+
 ## Example
 
 ```
@@ -40,7 +72,21 @@ C) Do nothing this week
 - Nothing to run. I finish the backfill audit and re-open this with real numbers.
 ```
 
-## Install
+## The same text, as a file
+
+`next-action.md` is the block above with no frontmatter, plus one optional section
+on referencing pull requests and issues when the work spans several repositories:
+
+```sh
+cat next-action.md >> ~/.claude/CLAUDE.md   # Claude Code, every project
+cat next-action.md >> ./CLAUDE.md           # Claude Code, this project only
+cat next-action.md >> ./AGENTS.md           # or .cursorrules, or the system prompt
+```
+
+For OMP, copy `omp/next-action.md` into the `agent/rules/` directory of your
+config: same text plus `alwaysApply: true`, so there is nothing else to set.
+
+## Or install it as a skill
 
 | Path | When it loads | Guarantee |
 | --- | --- | --- |
@@ -52,16 +98,7 @@ npx skills add aryrabelo/next-action-protocol --agent claude-code -g
 ```
 
 Good for trying it out, and for agents with no always-loaded file; if you like it,
-move to the fixed one. `next-action.md` is the portable text, no frontmatter:
-
-```sh
-cat next-action.md >> ~/.claude/CLAUDE.md   # Claude Code, every project
-cat next-action.md >> ./CLAUDE.md           # Claude Code, this project only
-cat next-action.md >> ./AGENTS.md           # or .cursorrules, or the system prompt
-```
-
-For OMP, copy `omp/next-action.md` into the `agent/rules/` directory of your
-config: same text plus `alwaysApply: true`, so there is nothing else to set.
+move to the fixed one.
 
 Warning if you manage `~/.claude` or `~/.omp` declaratively (nix, home-manager):
 `npx skills add` creates a real directory in the agent's skills path and collides
@@ -76,6 +113,16 @@ is not our symlink". Use the always-loaded file instead.
 | --- | --- |
 | `[WAIT]` meaning "your decision" | Rename to `[DECIDE]` |
 | — | `[WAIT]` is now an external blocker that resolves on its own; nothing for the human to do |
+
+## Contributing
+
+The protocol text is duplicated in four places on purpose — each one is a
+different install path. `bin/check-copies.sh` fails when they drift, so run it
+before opening a pull request:
+
+```sh
+./bin/check-copies.sh
+```
 
 ## License
 

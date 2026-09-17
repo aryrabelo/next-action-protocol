@@ -16,14 +16,15 @@ every answer, not a one-off tool. Once it is loaded, apply it to every following
 response that carries a recommendation, a proposed change, or a decision — do not
 wait to be reminded.
 
-If you want the guarantee rather than the default, install the always-loaded file
-instead: see the Install section of the repository README. A skill is selected on
-demand by its description, so it may not be loaded on the response where it
+If you want the guarantee rather than the default, paste the always-loaded block
+instead: see "Copy and paste this" in the repository README. A skill is selected
+on demand by its description, so it may not be loaded on the response where it
 matters most.
 
 ## The protocol
 
-End every recommendation-bearing response with `## NEXT ACTION` and exactly one tag:
+End every recommendation-bearing response with a `## NEXT ACTION` heading, then a
+blank line, then exactly one tag on its own line:
 
 - `[DONE]` — you already executed it. Auto-apply ONLY when all three hold: reversible, scoped to the task, confidence >= 0.8.
 - `[DECIDE]` — a choice only the human can make. Lettered options (A/B/C); the recommended one is listed FIRST, as A. Each option states what happened, what the choice does, and what the human must do. If you cannot justify the recommendation in one clause, write `(no recommendation — your call)` on the tag line and give the one-line reason the choice is genuinely human. Options are mutually exclusive, and when "do nothing" is a legitimate path it is a lettered option, never implicit.
@@ -38,7 +39,9 @@ Exactly one tag per response. The work is not finished until a response ends in
 ## Example
 
 ```
-## NEXT ACTION [DECIDE]
+## NEXT ACTION
+
+[DECIDE] — the production migration is not reversible
 
 The migration passed against staging, but it rewrites `orders.status` in place,
 so the production run is not reversible.
