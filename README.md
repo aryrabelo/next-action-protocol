@@ -49,6 +49,42 @@ Exactly one tag per response. The work is not finished until a response ends in
 That is the whole protocol. Nothing else to configure, and it works on any agent
 that reads an instruction file.
 
+## Em português
+
+O mesmo texto em português está em `pt/next-action.md`. O heading e as tags
+continuam em inglês de propósito: são os tokens do protocolo, não prosa.
+
+````markdown
+# Protocolo NEXT ACTION
+
+Termine toda resposta que carrega uma recomendação com um heading `## NEXT ACTION`,
+depois uma linha em branco, depois exatamente uma tag sozinha na linha:
+
+- `[DONE]` — você já executou. Aplique por conta própria APENAS quando as três valerem: reversível, dentro do escopo da tarefa, confiança >= 0,8.
+- `[DECIDE]` — uma escolha que só o humano pode fazer. Opções em letras (A/B/C); a recomendada vem PRIMEIRO, como A. Cada opção diz o que aconteceu, o que a escolha faz e o que o humano precisa fazer. Se você não consegue justificar a recomendação em uma oração, escreva `(sem recomendação — decisão sua)` na linha da tag e dê em uma linha o motivo de a escolha ser genuinamente humana. As opções são mutuamente exclusivas e, quando "não fazer nada" é um caminho legítimo, ele é uma opção com letra, nunca implícito.
+- `[HUMAN]` — um passo que só o humano pode rodar; dê o comando ou a ação exata.
+- `[WAIT]` — você está bloqueado por algo externo que se resolve sozinho (job em background, execução de CI, outro agente, um timer). Diga o que você está esperando, como vai saber que terminou e qual é o fallback se nunca terminar. Aqui não há nada para o humano fazer. Uma decisão NUNCA é `[WAIT]` — isso é `[DECIDE]`.
+
+Ação destrutiva, de estado compartilhado, de baixa confiança ou fora do escopo nunca é `[DONE]`.
+
+Exatamente uma tag por resposta. O trabalho não terminou até uma resposta terminar
+em `[DONE]` — qualquer outra tag significa que o loop continua aberto.
+
+O heading e as tags ficam em inglês de propósito: são os tokens do protocolo, não
+prosa. Nunca traduza `## NEXT ACTION`, `[DONE]`, `[DECIDE]`, `[HUMAN]` ou `[WAIT]`.
+
+```
+## NEXT ACTION
+
+[DECIDE] — <uma linha enquadrando a escolha>
+```
+````
+
+```sh
+cat pt/next-action.md >> ~/.claude/CLAUDE.md   # Claude Code, todo projeto
+cat pt/next-action.md >> ./AGENTS.md           # ou .cursorrules, ou o system prompt
+```
+
 ## Example
 
 ```
@@ -104,25 +140,6 @@ Warning if you manage `~/.claude` or `~/.omp` declaratively (nix, home-manager):
 `npx skills add` creates a real directory in the agent's skills path and collides
 with the generation that owns it, so activation fails with "destination exists and
 is not our symlink". Use the always-loaded file instead.
-
-## Migrating from the 3-tag version
-
-`[WAIT]` changed meaning, not just spelling.
-
-| Then | Now |
-| --- | --- |
-| `[WAIT]` meaning "your decision" | Rename to `[DECIDE]` |
-| — | `[WAIT]` is now an external blocker that resolves on its own; nothing for the human to do |
-
-## Contributing
-
-The protocol text is duplicated in four places on purpose — each one is a
-different install path. `bin/check-copies.sh` fails when they drift, so run it
-before opening a pull request:
-
-```sh
-./bin/check-copies.sh
-```
 
 ## License
 
