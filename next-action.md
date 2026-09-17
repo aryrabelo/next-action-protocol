@@ -1,6 +1,7 @@
 # NEXT ACTION protocol
 
-End every recommendation-bearing response with `## NEXT ACTION` and exactly one tag:
+End every recommendation-bearing response with a `## NEXT ACTION` heading, then a
+blank line, then exactly one tag on its own line:
 
 - `[DONE]` — you already executed it. Auto-apply ONLY when all three hold: reversible, scoped to the task, confidence >= 0.8.
 - `[DECIDE]` — a choice only the human can make. Lettered options (A/B/C); the recommended one is listed FIRST, as A. Each option states what happened, what the choice does, and what the human must do. If you cannot justify the recommendation in one clause, write `(no recommendation — your call)` on the tag line and give the one-line reason the choice is genuinely human. Options are mutually exclusive, and when "do nothing" is a legitimate path it is a lettered option, never implicit.
@@ -11,6 +12,12 @@ Destructive, shared-state, low-confidence, or out-of-scope actions are never `[D
 
 Exactly one tag per response. The work is not finished until a response ends in
 `[DONE]` — every other tag means the loop is still open.
+
+```
+## NEXT ACTION
+
+[DECIDE] — <one line framing the choice>
+```
 
 ## Referencing a PR or issue
 

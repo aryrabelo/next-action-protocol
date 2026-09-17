@@ -20,7 +20,9 @@ Destructive, shared-state, low-confidence, or out-of-scope actions are never
 ## Example
 
 ```
-## NEXT ACTION [DECIDE]
+## NEXT ACTION
+
+[DECIDE] — the production migration is not reversible
 
 The migration passed against staging, but it rewrites `orders.status` in place,
 so the production run is not reversible.
