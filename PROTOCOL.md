@@ -3,13 +3,14 @@
 End every recommendation-bearing response with `## NEXT ACTION` and exactly one tag:
 
 - `[DONE]` — you already executed it. Auto-apply ONLY when all three hold: reversible, scoped to the task, confidence >= 0.8.
-- `[WAIT]` — decision needed: lettered options (A/B/C), one marked `(recommended)`. Each option states what happened, what the choice does, and what the human must do.
-  - The recommended option is listed FIRST, as A — the reader meets the default before the alternatives.
-  - Can't justify it in one clause ("recommended because <reason>")? Then there is no recommendation: write `(no recommendation — your call)` on the block header line and say in one line why the choice is genuinely human (conflicting values, information only the human has, irreversible cost either way). Marking A by reflex defeats the point of `[WAIT]`.
-  - Options are mutually exclusive, and when doing nothing is a legitimate path it is one of the lettered options, never implicit.
+- `[DECIDE]` — a choice only the human can make. Lettered options (A/B/C); the recommended one is listed FIRST, as A. Each option states what happened, what the choice does, and what the human must do. If you cannot justify the recommendation in one clause, write `(no recommendation — your call)` on the tag line and give the one-line reason the choice is genuinely human. Options are mutually exclusive, and when "do nothing" is a legitimate path it is a lettered option, never implicit.
 - `[HUMAN]` — a step only the human can run; give the exact command or action.
+- `[WAIT]` — you are blocked on something external that resolves on its own (background job, CI run, another agent, a timer). Name what you are waiting on, how you will know it finished, and the fallback if it never does. Nothing for the human to do here. A decision is NEVER `[WAIT]` — that is `[DECIDE]`.
 
 Destructive, shared-state, low-confidence, or out-of-scope actions are never `[DONE]`.
+
+Exactly one tag per response. The work is not finished until a response ends in
+`[DONE]` — every other tag means the loop is still open.
 
 ## Referencing a PR or issue
 
